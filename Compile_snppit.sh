@@ -1,3 +1,5 @@
+# simple script to compile snppit.
+# TODO: make a Makefile
 gcc  -O3 -o snppit \
     shared/ranlib/src/com.c  \
     shared/ecalibs/ECA_MemAlloc.c   \
