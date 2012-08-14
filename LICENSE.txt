@@ -3,8 +3,9 @@ LICENSING AND ATTRIBUTION:
 If you use snppit I would be pleased to hear about it and about your
 experiences.   Send email to eric.anderson@noaa.gov
 
-I am in the process of preparing a manuscript for publication that will
-provide a citable document describing snppit.
+There is a manuscript in press about snppit in Statistical Applications
+and Molecular Biology.  Google scholar that and use that as a citation
+for the algorithm.
 
 snppit  is the product of work on US Government time and machines. It is
 released into the Public Domain with the disclaimer from the The MIT licence,
