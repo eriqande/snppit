@@ -20,6 +20,7 @@
 #define MAX_LOCI 1000
 #define MAX_X_STATES 400
 #define MAX_A_STATES 400
+#define MANY_MORE  300  /* weird little thing to make sure I don't run out of MULT_USE_OPTION instances in some places */
 
 
 

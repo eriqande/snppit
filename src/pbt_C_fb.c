@@ -1490,7 +1490,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 						     before issuing the next locus command\054 if you gave the --Na option.  Ultimately I am going to have to change the dependence
 						     here so that this is only necessary if you specified in the preamble that you were going to give Aprobs for this particular locus. This
 							 can easily be done by specifying Na for every locus.  Later..., 
-						   MAX_LOCI * MAX_A_STATES))  {
+						   MAX_LOCI * MAX_A_STATES * MANY_MORE))  {
 		if(PREAM_DONE && ALREADY_HAS(new_coll_f,--new-coll) && ARGS_EQ(ret->RP->Na)) { int i;
 			for(i=0;i<ret->RP->Na;i++) {
 				ret->Colls[ret->NumColls]->Aprobs[loc][i] = GET_DUB;
@@ -1514,7 +1514,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 						   Specify the prob on an X state. ,
 						   Specify the prob on an X state.  For each locus you must specify all of the X states with separate applications of this option\054 in the correct order\054
 						    before issuing the next locus command, 
-						   MAX_LOCI * MAX_X_STATES))  {
+						   MAX_LOCI * MAX_X_STATES * MANY_MORE))  {
 		if(PREAM_DONE && ALREADY_HAS(new_coll_f,--new-coll) && ARGS_EQ(1)) {
 			ret->Colls[ret->NumColls]->Xprobs[loc][++Xpr] = GET_DUB;
 			#ifdef VERBOSE_READING_FB_INPUT
@@ -1535,7 +1535,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 						   For each locus you must specify all of the fake X states with separate applications of this option\054 in the correct order\054
 						   before issuing the next locus command.  This is not a required option.  But\054 if you give it for any X-state at any locus
 						   you must provide it for every X-state in every locus., 
-						   MAX_LOCI * MAX_X_STATES))  {
+						   MAX_LOCI * MAX_X_STATES * MANY_MORE))  {
 		if(PREAM_DONE && ALREADY_HAS(new_coll_f,--new-coll) && ARGS_EQ(1)) {
 			ret->Colls[ret->NumColls]->Xfakeprobs[loc][++Xfpr] = GET_DUB;
 			ret->RP->HasFakeProbs = 1; 
@@ -1555,7 +1555,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 						   Specify the probs of the NaInX A states at a locus ,
 						   Specify the probs of the NaInX A states at a locus.  For each locus you must specify the probs of the A states given each X state with separate applications of this option
 						     for each X state. Issue them in the correct order., 
-						   MAX_LOCI * MAX_X_STATES))  {
+						   MAX_LOCI * MAX_X_STATES * MANY_MORE))  {
 		if(PREAM_DONE && ALREADY_HAS(new_coll_f,--new-coll) && ARGS_EQ(ret->RP->NaInX[++AprGX])) { int i;
 			for(i=0;i<ret->RP->NaInX[AprGX];i++) {
 				ret->Colls[ret->NumColls]->AprobsGX[loc][AprGX][i] = GET_DUB;
