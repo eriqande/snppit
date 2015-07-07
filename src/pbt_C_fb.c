@@ -1242,7 +1242,8 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 					ret->RP->Ystates_M[l][0] = i;
 					ret->RP->Ystates_M[l][1] = j;
 					ret->RP->Ystates_M[l][2] = k;
-					ret->RP->AgivenY_M[ ReturnVDex(ret->RP->NY, ret->RP->ymaxes_M, ret->RP->Ystates_M[l]) ] = l++;
+					ret->RP->AgivenY_M[ ReturnVDex(ret->RP->NY, ret->RP->ymaxes_M, ret->RP->Ystates_M[l]) ] = l;
+                    l++;
 				}}}
 				
 				
