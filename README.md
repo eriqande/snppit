@@ -100,6 +100,19 @@ make
 ```
 There will be quite a few warnings that I need to clean up. But it ought to compile.
 
+On some flavors of Linux there are errors at the linking phase.  This is because the math library
+`-lm` is not automatically linked in as it seems to be in OS X.  Rather than fuddling around my 
+way with automake, which I find terribly frustrating, just do this hack:  Find the last gcc
+command that got spit out to stdout when you were running the `make` command (find this right
+before you started to get all the errors about missing mathematical functions) and copy that line
+and re-run it on the command line in the current directory, but append `-lm` to it.  For example,
+on our Ubunt box, I did this:
+```sh
+gcc -I./shared/ecalibs   -I./src -I./shared/ranlib/src  -I./shared/ut_hash-1.2/src -I./shared/snpSumPed \
+   -g -O2  -lm  -o snppit com.o ECA_MemAlloc.o ECA_Opt3.o linpack.o MathStatRand.o MCTypesEtc.o pbt_C_fb.o \
+   pbt_C_main.o pbt_geno_compare.o pbt_highlevel.o pfr_pedigree_spec.o pfr_read_genos.o ranlib.o snp_sumped.o \
+   ECA_print.o -lm
+```
 
 ## Funding and contributors
 This work was funded by the Pacific Salmon Commission
