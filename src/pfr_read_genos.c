@@ -212,7 +212,7 @@ void CheckAndInsertIndivName(char *Name, KeywordStatus Regime, pfr_geno_data *P,
 	   if(Regime==POP) {
 			/* check to make sure that the current pop is the same */
 			if(s->parent_pop != CurrPop && s->parent_pop != -1) { /* if s->parent_pop is -1, this means it hasn't been seen before */
-				fprintf(stderr,"Error!  We previously observed invividual %s in a POP with index %s. Now he is showing up in a different population.  Exiting!\n",
+				fprintf(stderr,"Error!  We previously observed invividual %s in a POP with index %d. Now he is showing up in a different population.  Exiting!\n",
 						Name,s->parent_pop);
 				exit(1);
 			}
@@ -231,7 +231,7 @@ void CheckAndInsertIndivName(char *Name, KeywordStatus Regime, pfr_geno_data *P,
 	   }
 	   else {
 		   if(s->offspring_coll != CurrPop  && s->offspring_coll!=-1 ) {
-			   fprintf(stderr,"Error!  We previously observed invividual %s in a OFFSPRING collecdtion with index %s. Now he is showing up in a different collection.  Exiting!\n",
+			   fprintf(stderr,"Error!  We previously observed invividual %s in a OFFSPRING collection with index %d. Now he is showing up in a different collection.  Exiting!\n",
 					   Name,s->offspring_coll);
 			   exit(1);
 		   }
@@ -418,7 +418,7 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 	/* get the number of loci */
 	fscanf(in," %s",tempstr);
 	if(strcmp(tempstr,"NUMLOCI")!=0) {
-		fprintf(stderr,"Error! Expecting file %s to start with NUMLOCI keyword, but it started with %s. Exiting\n",tempstr);
+		fprintf(stderr,"Error! Expecting file %s to start with NUMLOCI keyword, but it started with %s. Exiting\n",FileName,tempstr);
 		exit(1);
 	}
 	fscanf(in," %d",&(ret->NumLoci));
@@ -1336,7 +1336,7 @@ void CountAlleles(pfr_geno_data *P)
 								break;
 							default:
 								fprintf(stderr,"Error! Unrecognized genotype %d at individual %s (duplicate m= %d) locus %d while counting allele frequencies.  Exiting\n",
-										P->Pops[i][k][l].geno[m][j]==0, m, j);
+										P->Pops[i][k][l].geno[m][j], P->Pops[i][k][l].Name, m, j);
 								exit(1);
 								
 								

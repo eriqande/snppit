@@ -177,3 +177,5 @@ void DoFDR_ForAPop(int ThePop, pbt_high_level_vars *HLV);
 double EstimateFractionParentalByEM_UsingApproxDensOfPvalues(pbt_fdr_container *f, int N, double NullDens, double Precis, int MaxIts);
 double *Return_ArchTypeChinookPiVec(int AVE, int *outx, int *outpsz);
 void NegotiatePiVectors(pbt_user_opts *PBUO, pfr_geno_data *PFR);
+void ComputePurePopTrioColls(pbt_high_level_vars *HLV);
+void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV);

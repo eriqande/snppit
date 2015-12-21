@@ -170,3 +170,4 @@ double UnconditionalGenoProb_A64(double **Aprobs_M, int *A, int L);
 double *TrioPostProbs(int *A_array, FB_Vars *PP,int SinglePopCollWithPedsOrdered, double *Pi, int Pop, double *LogL, double *UseThisAsOutput, double *PrPar, double *PrNonPar);
 int cmp_parent_pair(const void *a, const void *b);
 int ReturnXstateOfA_64(int A);
+void XStuffFromAStuff(double **Aprobs, RunPars *RP, Collection *Out);

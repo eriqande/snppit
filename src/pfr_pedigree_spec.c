@@ -42,6 +42,7 @@ FB_Vars *CreateCompleteFB_Vars(
 	char *sargv[4];
 	int sargc = 4;
 	FILE *ssp_outp;
+	int MissMethZero = 0;
 	
 	/* open up a file to write the snpsumped output to multiple times */
 	if( (ssp_outp = fopen(SSP_OutFileName,"w"))==NULL) {
@@ -120,7 +121,7 @@ FB_Vars *CreateCompleteFB_Vars(
 											PFR->AlleFreqs[i],				/* p			*/
 											youthp,							/* youth p		*/
 											PFR->GtypErrRates,				/* mu			*/
-											0,								/* MissMeth		*/
+											&MissMethZero,								/* MissMeth		*/
 											TimesThrough==0,				/* DoPream		*/
 											PFR->PopNames[i],				/* MaPopPopName */
 											PFR->PopNames[k],				/* KidPopName	*/
@@ -389,7 +390,7 @@ void Print_snpSumPed_CommandFile(char *FileName,
 		exit(1);
 	}
 	
-	fprintf(in,"--miss-meth %d\n",MissMeth); 
+	fprintf(in,"--miss-meth %d\n", *MissMeth); 
 	fprintf(in,"-f 1 2 3\n");
 	fprintf(in,"--xml-output %sx%s__%s\n",MaPopPopName,KidPopName,PedSpecNames[PedIdx]);
 	if(DoPream) {
@@ -479,7 +480,7 @@ const char *SpecPedIdx2Str(int P)
 			return("F_F");
 			break;
 		default:
-			fprintf(stderr,"Unrecognized Spec Ped Idx %d in SpecPedIdx2Str().  Exiting...\n");
+			fprintf(stderr,"Unrecognized Spec Ped Idx %d in SpecPedIdx2Str().  Exiting...\n", P);
 			exit(1);
 			break;
 	}

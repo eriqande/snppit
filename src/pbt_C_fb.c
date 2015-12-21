@@ -1372,7 +1372,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 			GET_STR(ret->Colls[ret->NumColls]->CollName);
 			/* here we do some error checking */
 			if(ret->NumColls>0 && (loc+1)!=ret->RP->L) {
-				fprintf(stderr,"Error! Trying to initialize collection %s but we only read %d loci in collection %s. Exiting...\n",loc+1,ret->Colls[ret->NumColls-1]->CollName);
+				fprintf(stderr,"Error! Trying to initialize collection %s but we only read %d loci in collection %s. Exiting...\n",ret->Colls[ret->NumColls-1]->CollName, loc+1,ret->Colls[ret->NumColls-1]->CollName);
 				exit(1);
 			}
 			/* here we have to check to make sure that the last locus we read in in the previous collection had everything it needed to have in it */
@@ -1592,7 +1592,7 @@ FB_Vars *Get_pbt_C_fb_Opts(int argc, char *argv[])
 	/* check the last collection */
 	ret->NumColls++;  /* this also sets the number of collections to the correct number */
 	if(ret->NumColls>0 && (loc+1)!=ret->RP->L) {
-		fprintf(stderr,"Error! Trying to initialize collection %s but we only read %d loci in collection %s. Exiting...\n",loc+1,ret->Colls[ret->NumColls-1]->CollName);
+		fprintf(stderr,"Error! Trying to initialize collection %s but we only read %d loci in collection %s. Exiting...\n",ret->Colls[ret->NumColls-1]->CollName,loc+1,ret->Colls[ret->NumColls-1]->CollName);
 		exit(1);
 	}
 	#ifdef VERBOSE_READING_FB_INPUT

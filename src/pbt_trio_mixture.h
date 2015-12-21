@@ -33,9 +33,6 @@ typedef struct {
 				from parenthood (i.e. is in S-down) in at least one individuals in the
 				offspring collection under consideration */
 	
-/*	int *setZW;  /* just the intersection of Z and W.  This should probably be just the same
-				 as setW.  I will investigate and may remove as coding progresses. */
-	
 	int *NumPairs;  /* for each offspring in the collection, the number of non-excluded
 						putative parent pairs.  Length=NumOffs */
 	

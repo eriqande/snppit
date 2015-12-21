@@ -342,3 +342,4 @@ void PrintSummaryOfAllelicCountsAndFreqs(FILE *s, pfr_geno_data *P);
 void ComputeAlleleFreqsFromCounts(FILE *s, pfr_geno_data *P);
 void SummarizeLocusNameAndGtypRates(FILE *s, pfr_geno_data *P);
 int ReadAndCheckPopSize(FILE *in, char *S);
+void CollectDataOnSecondPass(pfr_geno_data *ret, const char *FileName);

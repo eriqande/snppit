@@ -81,7 +81,7 @@ int XVectorOfGenos(int kid, int pa, int ma)
 	tot_inc = 0;
 	/* tot_inc is 1 only for that special case of parents compatible with the kid individually, but the whole
 	   trio is not compatible. */
-	tot_inc = (kid==1 && ( (pa==0 && ma==0) || (pa==2) && (ma==2)));
+	tot_inc = kid==1 && ( (pa==0 && ma==0) || (pa==2 && ma==2));
 	
 	if(pa_inc + ma_inc + tot_inc == 0) return(0);
 	if(tot_inc) return(1);
@@ -135,7 +135,7 @@ int XVectorOfGenosWithMiss1(int kid, int pa, int ma)
 	tot_inc = 0;
 	/* tot_inc is 1 only for that special case of parents compatible with the kid individually, but the whole
 	 trio is not compatible. */
-	tot_inc = (kid==1 && ( (pa==0 && ma==0) || (pa==2) && (ma==2)));
+	tot_inc = kid==1 && ( (pa==0 && ma==0) || (pa==2 && ma==2));
 	
 	kidmiss = (kid==3);
 	mamiss = (ma==3);
@@ -219,7 +219,7 @@ int XVectorOfGenosWithMiss3(int kid, int pa, int ma)
 	tot_inc = 0;
 	/* tot_inc is 1 only for that special case of parents compatible with the kid individually, but the whole
 	 trio is not compatible. */
-	tot_inc = (kid==1 && ( (pa==0 && ma==0) || (pa==2) && (ma==2)));
+	tot_inc = kid==1 && ( (pa==0 && ma==0) || (pa==2 && ma==2));
 	
 	kidmiss = (kid==3);
 	mamiss = (ma==3);

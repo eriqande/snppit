@@ -911,6 +911,7 @@ void AssessFPR_and_FNR_ByBackwardSimulation(pbt_high_level_vars *HLV, int OC_idx
 						Offs[i].MendComps->ParPairs[0].ma_MI,
 						Offs[i].MendComps->ParPairs[0].trio_MI
 					   );
+				 */
 				/* now provide a comma separated list of locus indexes that have Mendelian incompatibilities in the trio. */
 				/*p=0;
 				for(j=0;j<L;j++)  {
