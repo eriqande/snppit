@@ -10,7 +10,7 @@ $bin -f datafile.txt $(cat pars)
 echo "done running program"
 
 # now remove some of the big output files.   
-rm -f BigSmax_Input BigSmax_Output.txt PurePop_Input PurePop_Output.txt
+rm -f BigSmax_Input BigSmax_Output.txt PurePop_Input PurePop_Output.txt snppit_seeds
 
 
 # and then cycle over the snppit_output* files and make sure that they are
