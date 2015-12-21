@@ -169,7 +169,11 @@ int main(int argc, char *argv[])
 	 */
 	/*fprintf(HLV->MaxLodNonExpPar_File,"Kid\tPa\tMa\tPvalue\tLOD\tP.Pr.C_Se_Se\tP.Pr.Max\tMaxP.Pr.Relat\tTotPaNonExc\tTotMaNonExc\tTotUnkNonExc\tTotPairsNonExc\tKidMiss\tPaMiss\tMaMiss\tMI.Kid.Pa\tMI.Kid.Ma\tMI.Trio\tMendIncLoci\n");
 	*/
-	 printf("\n\n");
+	printf("\n\n");
+	
+	SeedFromFile("snppit_seeds");
+	
+	printf("\n\n");
 	for(i=0;i<HLV->PFR->NumOffColls;i++) {
 		printf("COMPUTING P-VALUES BY SIMULATION:  COLLECTION %d  %s    with %d indivs in collection\nDone with individual index:\n",i+1,HLV->PFR->OffCollNames[i],HLV->PFR->NumInOffColls[i]);
 		AssessFPR_and_FNR_ByBackwardSimulation(HLV, i, CPFB);
@@ -190,9 +194,11 @@ int main(int argc, char *argv[])
 	}
 	fclose(HLV->FDR_Summaries_File);
 	
-	
-	
 	printf("\n\n");
+	SeedToFile("snppit_seeds");
+	printf("\n\n");
+	
+	
 	printf("PRINTING FINAL PARENTAGE REPORT\n");
 	PrintFinalIndivReportWithFDRs(HLV);
 	

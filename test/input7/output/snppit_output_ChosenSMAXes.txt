@@ -1,0 +1,16 @@
+
+
+
+CHOSEN_SMAX:  Chosen smax is 3-3-9 which gives FNRs of:
+CHOSEN_SMAX:		Collection 0 (ParentPoolxParentPool__C_Se_Se) : FNR= 0.014178
+CHOSEN_SMAX:		Collection 1 (Pop287xPop287__C_Se_Se) : FNR= 0.012327
+CHOSEN_SMAX:		Collection 2 (Pop114xPop114__C_Se_Se) : FNR= 0.014113
+CHOSEN_SMAX:		Collection 3 (Pop105xPop105__C_Se_Se) : FNR= 0.014230
+CHOSEN_SMAX:		Collection 4 (Pop106xPop106__C_Se_Se) : FNR= 0.013572
+CHOSEN_SMAX:		Collection 5 (Pop104xPop104__C_Se_Se) : FNR= 0.012313
+CHOSEN_SMAX:		Collection 6 (Pop132xPop132__C_Se_Se) : FNR= 0.010159
+CHOSEN_SMAX:		Collection 7 (Pop244xPop244__C_Se_Se) : FNR= 0.013371
+CHOSEN_SMAX:		Collection 8 (Pop153xPop153__C_Se_Se) : FNR= 0.014479
+
+
+

@@ -275,7 +275,7 @@ void SelectAnSmax3(pbt_high_level_vars *HLV)
 	A = HLV->ParentalTrioBigSmax;
 	for(C=0; C<A->NumColls;  C++) {  /* cycle over collections */
 		gotit=0;
-		for(x[0]=0,x[1]=0; x[0]<=big_smax[0],x[1]<=big_smax[1];  x[0]++,x[1]++) {
+		for(x[0]=0,x[1]=0; x[0]<=big_smax[0] && x[1]<=big_smax[1];  x[0]++,x[1]++) {
 			for(x[2]=x[0]; x[2]<=big_smax[2];  x[2]++)  {
 				tag=' ';
 				Res =  SumOfS_states3(A, x, C);
