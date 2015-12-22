@@ -24,6 +24,10 @@ https://github.com/eriqande/snppit/archive/master.zip
 
 ## Quick start for non-computer programmer types
 
+**Warning!** the executable files `snppit.exe`, `snppit-Darwin`, and `snppit-Linux` are provided
+as a courtesy, but are not guaranteed to have been compiled up from the latest commit.  For that
+you should compile it up yourself (or see when it was last committed).
+
 To get the program running quickly, do the following:
 
 ### ON WINDOWS:
@@ -49,8 +53,8 @@ To get the program running quickly, do the following:
 
 ### ON MAC OSX:
 
-1. Copy the executable "snppit" to your Desktop.  
-2. Copy the data file ExampleDataFile1.txt in the ExampleData
+1. Copy the executable  `snppit-Darwin` to your Desktop.  
+2. Copy the data file `ExampleDataFile1.txt` in the `ExampleData`
    directory to your Desktop.
 3. Open the Terminal application (in the Utilities folder
    inside the Applications folder)
@@ -62,7 +66,7 @@ To get the program running quickly, do the following:
    be in the Desktop directory.
 5. Type:
     ```
-    ./snppit  -f ExampleDataFile1.txt 
+    ./snppit-Darwin  -f ExampleDataFile1.txt 
     ```
     into the command prompt, and the program should run.  
     
@@ -72,6 +76,13 @@ on how to use `snppit`.  If you are comfortable moving the program
 to another location than Desktop, feel free to do so.  If you prepare
 your own data file named `MyFile.txt`  then you run it with the option
 `-f MyFile.txt`     instead of `-f ExampleDataFile1.txt`.
+
+
+### On Ubuntu Linux
+Follow the directions as for the Mac version, but use `snppit-Linux` instead
+of `snppit-Darwin`.  And you probably don't have a Desktop on Ubuntu the same as
+on Mac, so just use some other directory.  Of course, it is probably best to
+compile it up anew and then put it in `/usr/local/bin`.
 
 
 For  full list of all program options do:
@@ -90,29 +101,30 @@ on the virutal machine).  I hope that it runs faster on a
 native Windows machine than when Windows is running virtually
 on my Mac.
 
-## Compiling the program
+## Compiling the program on Linux or Mac
 Like so:
-```
+```sh
 git clone https://github.com/eriqande/snppit.git
 cd snppit
-./configure
-make
+./Compile_snppit.sh
 ```
-There will be quite a few warnings that I need to clean up. But it ought to compile.
+On Linux there may be a lot of warnings about not catching return values from fscanf.  I've got to deal with
+those eventually.  But for now it is fine---they are just warnings and not errors.  It will compile up into
+`snppit-Darwin` (on a Mac) and `snppit-Linux` (on Linux).
 
-On some flavors of Linux there are errors at the linking phase.  This is because the math library
-`-lm` is not automatically linked in as it seems to be in OS X.  Rather than fuddling around my 
-way with automake, which I find terribly frustrating, just do this hack:  Find the last gcc
-command that got spit out to stdout when you were running the `make` command (find this right
-before you started to get all the errors about missing mathematical functions) and copy that line
-and re-run it on the command line in the current directory, but append `-lm` to it.  For example,
-on our Ubunt box, I did this:
+
+## Running some tests
+
+I have some limited tests in the directory `test`.  Basically, it runs some data sets and then checks to see
+whether the results are identical to some stored results.  Currently, some data sets give different orderings of output
+individuals on Linux vs Mac, so it checks consistency across operating systems too.  To run the tests, do this from
+the main repository directory:
+
 ```sh
-gcc -I./shared/ecalibs   -I./src -I./shared/ranlib/src  -I./shared/ut_hash-1.2/src -I./shared/snpSumPed \
-   -g -O2  -lm  -o snppit com.o ECA_MemAlloc.o ECA_Opt3.o linpack.o MathStatRand.o MCTypesEtc.o pbt_C_fb.o \
-   pbt_C_main.o pbt_geno_compare.o pbt_highlevel.o pfr_pedigree_spec.o pfr_read_genos.o ranlib.o snp_sumped.o \
-   ECA_print.o -lm
+cd test
+./run_all_tests.sh
 ```
+
 
 ## Funding and contributors
 This work was funded by the Pacific Salmon Commission
