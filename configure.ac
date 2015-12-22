@@ -1,5 +1,0 @@
-AC_INIT([SNPPIT -- SNPs for Intergenerational Tagging], 1.12)
-AM_INIT_AUTOMAKE
-AC_PROG_CC
-AC_CONFIG_FILES(Makefile)
-AC_OUTPUT
