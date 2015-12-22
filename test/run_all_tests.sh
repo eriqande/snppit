@@ -77,7 +77,9 @@ for T in input7; do
   if [ $OVERWRITE == "YES" ]; then
     echo "OVERWRITING OLD RESULTS WITH NEW IN DIRECTORY $T"
     mkdir output-$(uname)
-    mv snppit_output* output-$(uname)/
+    # don't put the BasicDataSummary there because it can be huge.  This 
+    # command takes care of that.
+    mv snppit_output_[!B]* output-$(uname)/
   fi
   
   echo "DONE WITH TEST IN DIRECTORY $T"
