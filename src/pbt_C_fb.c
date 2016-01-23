@@ -548,6 +548,33 @@ double UnconditionalGenoProb_A64(double **Aprobs_M, int *A, int L)
 	return(ret);
 }
 
+
+/* given the observed genotypes at a trio, A, (expressed as 0 to 63) at each locus and the associated
+ probabilities for each in Aprobs_M, at L loci, return the log of the prob of the trio genotype at all L loci
+ */
+double LogUnconditionalGenoProb_A64(double **Aprobs_M, int *A, int L)
+{
+    int i;
+    double ret=0.0;
+    
+    
+    /*printf("COMPING_POSTS_INSIDE_UnconditionalGenoProb_A64:  ");
+     for(k=0;k<L;k++)  {
+     printf("%d ",A[k]);
+     }
+     printf("\n");*/
+    
+    
+    for(i=0;i<L;i++)  {
+        //printf("PARTIAL_OVER_LOCI loc= %d     A[i]=  %d    Aprobs_M= %f\n",i,A[i], Aprobs_M[i][ A[i] ]);
+        ret += log(Aprobs_M[i][ A[i] ]);
+        //printf("PARTIAL_OVER_LOCI_AFTER_RET_PROD:  loc= %d     A[i]=  %d    Aprobs_M= %f\n",i,A[i], Aprobs_M[i][ A[i] ]);
+    }
+    
+    return(ret);
+}
+
+
 /* given an A-state array having values for L loci (each can be 0 to 63 and hence can deal with missing data),
  and an FB_Vars struct that holds the PurePopTrioColls, 
  and a vector of length NUM_SPEC_PEDS that holds the prior probability of the trio falling into
@@ -583,6 +610,7 @@ double *TrioPostProbs(int *A_array, FB_Vars *PP, int SinglePopCollWithPedsOrdere
 	int L = PP->RP->L;
 	double *ret;
 	double LogLnumer, LogLdenom;
+    double maxprob = -99999999999999999.9;
 	
 	
 	if(UseThisAsOutput==NULL) {
@@ -591,6 +619,7 @@ double *TrioPostProbs(int *A_array, FB_Vars *PP, int SinglePopCollWithPedsOrdere
 	else {
 		ret = UseThisAsOutput;
 	}
+    /* first cycle to get the log values */
 	for(i=0;i<NUM_SPEC_PEDS;i++)  {
 		
 		if(SinglePopCollWithPedsOrdered) {
@@ -599,16 +628,29 @@ double *TrioPostProbs(int *A_array, FB_Vars *PP, int SinglePopCollWithPedsOrdere
 		else {
 			x = PPTC_IDX(NUM_SPEC_PEDS,  i,  Pop);  /* this is the index of the Collection we want */
 		}
-		if(Pi[i] > 1e-50) {  /* if the prior prob is very small (like 0) we don't even worry about it */
+//		if(Pi[i] > 1e-50 || 1) {  /* if the prior prob is very small (like 0) we don't even worry about it */
 			
 						
-			ret[i] =  Pi[i] *  UnconditionalGenoProb_A64( PP->Colls[x]->Aprobs_M, A_array, L);
-		}
-		else {
-			ret[i] = 0.0;
-		}
-		normo += ret[i];
+			ret[i] =  log(Pi[i]) +  LogUnconditionalGenoProb_A64( PP->Colls[x]->Aprobs_M, A_array, L);
+//		}
+//		else {
+//			ret[i] = 0.0;
+//		}
+//		normo += ret[i];
+        if(ret[i] > maxprob) maxprob = ret[i];
 	}
+    /* then cycle to increase everything so the exp of the largest value is 1 and exponentiate if they aren't too small 
+     and set them to 0 if they are too small. */
+    for(i=0;i<NUM_SPEC_PEDS;i++)  {
+        ret[i] = ret[i] - maxprob;
+        if(ret[i] < -100) {  /* if it is ridiculously small, just set it to 0 */
+            ret[i] = 0.0;
+        }
+        else {
+            ret[i] = exp(ret[i]);
+        }
+        normo += ret[i];
+    }
 	
 	/* at this point, we can get the likelihood ratio by getting the numerator as the raw parental prob as ret[0]/Pi[0] and then getting
 	 the denominator by subtracting ret[0] from normo, and then dividing that by (1-Pi[0]). */
