@@ -628,16 +628,8 @@ double *TrioPostProbs(int *A_array, FB_Vars *PP, int SinglePopCollWithPedsOrdere
 		else {
 			x = PPTC_IDX(NUM_SPEC_PEDS,  i,  Pop);  /* this is the index of the Collection we want */
 		}
-//		if(Pi[i] > 1e-50 || 1) {  /* if the prior prob is very small (like 0) we don't even worry about it */
-			
-						
-			ret[i] =  log(Pi[i]) +  LogUnconditionalGenoProb_A64( PP->Colls[x]->Aprobs_M, A_array, L);
-//		}
-//		else {
-//			ret[i] = 0.0;
-//		}
-//		normo += ret[i];
-        if(ret[i] > maxprob) maxprob = ret[i];
+		ret[i] =  log(Pi[i]) +  LogUnconditionalGenoProb_A64( PP->Colls[x]->Aprobs_M, A_array, L);
+    if(ret[i] > maxprob) maxprob = ret[i];
 	}
     /* then cycle to increase everything so the exp of the largest value is 1 and exponentiate if they aren't too small 
      and set them to 0 if they are too small. */
