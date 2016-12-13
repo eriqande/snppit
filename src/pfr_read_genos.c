@@ -78,7 +78,7 @@ SexEnum SexStrToEnum(const char *S)
 		return(FEMALE);
 	}
 	
-	fprintf(stderr,"ERROR! Unrecognized Sex identifier \"%s\".  Exiting.\n",S);
+	fprintf(stderr,"ERROR! Unrecognized Sex identifier \"%s\".  Last read individual = %s  ...  Exiting.\n",S, gCurrentIndivID);
 	exit(1);
 	
 	return(-999);
@@ -110,7 +110,7 @@ void CheckAndInsertPopCollName(char *Name, coll_type_name_enum C, pfr_geno_data 
 		sprintf(temp,"OFFSPRING");	
 	}
 	else {
-		fprintf(stderr,"Error! unrecognized enum %d for argument C in CheckAndInsertPopCollName. Exiting\n",C);
+		fprintf(stderr,"Error! unrecognized enum %d for argument C in CheckAndInsertPopCollName.  Last read individual = %s  ...  Exiting\n",C, gCurrentIndivID);
 		exit(1);
 	}
 	
@@ -122,7 +122,8 @@ void CheckAndInsertPopCollName(char *Name, coll_type_name_enum C, pfr_geno_data 
 		else if(s->CollType==OFF_COLL_NAME) {
 			sprintf(temp2,"OFFSPRING");	
 		}
-		fprintf(stderr,"Error!  Just read the %s name %s, but it was previously used for an earlier %s name.  Exiting.\n",temp2,Name,temp);
+		fprintf(stderr,"Error!  Just read the %s name %s, but it was previously used for an earlier %s name.  Last read individual = %s  ...  Exiting.\n",
+          temp2,Name,temp, gCurrentIndivID);
 		exit(1);
 	}
 	else {
@@ -156,7 +157,8 @@ int HandleSpawnGroupString(char *string, int level, pfr_geno_data *P)
 	struct spawn_group_name_hash* s;
 	
 	if(level>MAX_SPAWN_GROUP_LEVELS-1) {
-		fprintf(stderr,"Error! Spawn Group Name %s occurs at level %d which is greater than MAX_SPAWN_GROUP_LEVELS-1. Exiting!\n",string,level);
+		fprintf(stderr,"Error! Spawn Group Name %s occurs at level %d which is greater than MAX_SPAWN_GROUP_LEVELS-1. Last read individual = %s  ...   Exiting!\n",
+          string,level, gCurrentIndivID);
 	}
 	
 	if(strcmp(string,"?")==0) {
@@ -200,7 +202,7 @@ void CheckAndInsertIndivName(char *Name, KeywordStatus Regime, pfr_geno_data *P,
 	struct indiv_name_hash_struct *s=NULL;
 	
 	if( !(Regime==POP || Regime==OFFSPRING ) ) {
-		fprintf(stderr,"Error! unrecognized enum %d for argument Regime in CheckAndInsertIndivName. Exiting\n",Regime);
+		fprintf(stderr,"Error! unrecognized enum %d for argument Regime in CheckAndInsertIndivName. Last read individual = %s  ...  Exiting\n",Regime, gCurrentIndivID);
 		exit(1);
 	}
 	
@@ -212,8 +214,8 @@ void CheckAndInsertIndivName(char *Name, KeywordStatus Regime, pfr_geno_data *P,
 	   if(Regime==POP) {
 			/* check to make sure that the current pop is the same */
 			if(s->parent_pop != CurrPop && s->parent_pop != -1) { /* if s->parent_pop is -1, this means it hasn't been seen before */
-				fprintf(stderr,"Error!  We previously observed invividual %s in a POP with index %d. Now he is showing up in a different population.  Exiting!\n",
-						Name,s->parent_pop);
+				fprintf(stderr,"Error!  We previously observed invividual %s in a POP with index %d. Now he is showing up in a different population.  Last read individual = %s  ... Exiting!\n",
+						Name,s->parent_pop, gCurrentIndivID);
 				exit(1);
 			}
 		   if(s->Sex != Sex) {
@@ -231,8 +233,8 @@ void CheckAndInsertIndivName(char *Name, KeywordStatus Regime, pfr_geno_data *P,
 	   }
 	   else {
 		   if(s->offspring_coll != CurrPop  && s->offspring_coll!=-1 ) {
-			   fprintf(stderr,"Error!  We previously observed invividual %s in a OFFSPRING collection with index %d. Now he is showing up in a different collection.  Exiting!\n",
-					   Name,s->offspring_coll);
+			   fprintf(stderr,"Error!  We previously observed invividual %s in a OFFSPRING collection with index %d. Now he is showing up in a different collection. Last read individual = %s  ...  Exiting!\n",
+					   Name,s->offspring_coll, gCurrentIndivID);
 			   exit(1);
 		   }
 		   else {
@@ -300,7 +302,7 @@ struct indiv_name_hash_struct *SubscriptsOfName(char *Name, coll_type_name_enum 
 		*b = s->idx_in_offcoll;
 	}
 	else {
-		fprintf(stderr,"Error! Unrecognized coll_type_name_enum %d in SubscriptsOfName. Exiting.\n",CE);
+		fprintf(stderr,"Error! Unrecognized coll_type_name_enum %d in SubscriptsOfName. Last read individual = %s  ... Exiting.\n",CE, gCurrentIndivID);
 		exit(1);
 	}
 	return(s);
@@ -352,7 +354,7 @@ int ReturnGeno(int i,int **AlleNamesRaw, int *NumAlleRaw, char *A, char *B, char
 		if(b[0]>1 || b[1]>1)  {
 			fprintf(stderr,"Error at locus %d.  We've detected more than 2 alleles: ",i);
 			for(l=0;l<NumAlleRaw[i];l++) fprintf(stderr,"%d ",AlleNamesRaw[i][l]);
-			fprintf(stderr,"  Exiting.\n");
+			fprintf(stderr,"  Last read individual = %s  ...  Exiting.\n", gCurrentIndivID);
 			exit(1);
 		}
 	}
@@ -377,7 +379,7 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 	coll_type_name_enum CurrentCollType;
 	char PopSizeTempStr[600];
 	
-	
+	sprintf(gCurrentIndivID, "Undefined");
 	
 	if( (in=fopen(FileName,"r"))==NULL) {
 		fprintf(stderr,"Failed in FirstPassThroughData trying to read file %s. Exiting.\n",FileName);
@@ -459,7 +461,7 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 				}
 				else if(kw_stat==OFFSPRING)
 				{
-					fprintf(stderr,"Error! Hit the OFFSPRING keyword before any POPs.  Exiting!\n");
+					fprintf(stderr,"Error! Hit the OFFSPRING keyword before any POPs.  Last read individual = %s  ... Exiting!\n", gCurrentIndivID);
 					exit(1);
 				}
 				else if(kw_stat==MISSING_ALLELE) {
@@ -534,8 +536,8 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 					fscanf(in,"%s ", tempstr);  /* eat the possible parental pops*/
 				}
 				else {
-					fprintf(stderr,"ERROR!  Was expecting to read an indiv ID and instead read the keyword %s.  At indiv %d in POP=%s Exiting\n",
-						tempstr,ret->TotInPops[ret->NumPops],tempPopName);
+					fprintf(stderr,"ERROR!  Was expecting to read an indiv ID and instead read the keyword %s.  At indiv %d in POP=%s   Last read individual = %s  ...  Exiting\n",
+						tempstr,ret->TotInPops[ret->NumPops],tempPopName, gCurrentIndivID);
 					exit(1);
 				}
 			}
@@ -549,8 +551,8 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 						printf("%s ",tempstr);
 					#endif
 					if(CheckForKeyword(tempstr,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in a %s column and instead read the keyword %s.  At indiv %d in POP=%s Exiting\n",
-								KeywordEnumAsString(ret->ExtraPopCols[i]),tempstr,ret->TotInPops[ret->NumPops],tempPopName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in a %s column and instead read the keyword %s.  At indiv %d in POP=%s   Last read individual = %s  ... Exiting\n",
+								KeywordEnumAsString(ret->ExtraPopCols[i]),tempstr,ret->TotInPops[ret->NumPops],tempPopName, gCurrentIndivID);
 						exit(1);
 					}
 					if(ret->ExtraPopCols[i]==POPCOLUMN_SEX) {
@@ -570,13 +572,13 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 						printf(" %s %s ",tempstr,tempstr2);
 					#endif
 					if(CheckForKeyword(tempstr,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in POP=%s Exiting\n",
-								i,tempstr,ret->TotInPops[ret->NumPops],tempPopName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in POP=%s  Last read individual = %s  ...  Exiting\n",
+								i,tempstr,ret->TotInPops[ret->NumPops],tempPopName, gCurrentIndivID);
 						exit(1);
 					}
 					if(CheckForKeyword(tempstr2,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in POP=%s Exiting\n",
-								i,tempstr2,ret->TotInPops[ret->NumPops],tempPopName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in POP=%s   Last read individual = %s  ... Exiting\n",
+								i,tempstr2,ret->TotInPops[ret->NumPops],tempPopName, gCurrentIndivID);
 						exit(1);
 					}
 					/* and figure out what the alleles are */
@@ -613,8 +615,8 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 					fscanf(in,"%s ", tempstr);  /* eat the possible parental pops*/
 				}
 				else {
-					fprintf(stderr,"ERROR!  Was expecting to read an indiv ID and instead read the keyword %s.  At indiv %d in POP=%s Exiting\n",
-							tempIndivID,ret->NumInOffColls[ret->NumOffColls],tempOffColName);
+					fprintf(stderr,"ERROR!  Was expecting to read an indiv ID and instead read the keyword %s.  At indiv %d in POP=%s   Last read individual = %s  ... Exiting\n",
+							tempIndivID,ret->NumInOffColls[ret->NumOffColls],tempOffColName, gCurrentIndivID);
 					exit(1);
 				}
 			}
@@ -627,8 +629,8 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 						printf("%s ",tempstr);
 					#endif
 					if(CheckForKeyword(tempstr,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in a %s column and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s Exiting\n",
-								KeywordEnumAsString(ret->ExtraOffCols[i]),tempstr,ret->NumInOffColls[ret->NumOffColls],tempOffColName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in a %s column and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s  Last read individual = %s  ...  Exiting\n",
+								KeywordEnumAsString(ret->ExtraOffCols[i]),tempstr,ret->NumInOffColls[ret->NumOffColls],tempOffColName, gCurrentIndivID);
 						exit(1);
 					}
 				}
@@ -644,13 +646,13 @@ pfr_geno_data *FirstPassThroughData(const char *FileName)
 						printf(" %s %s ",tempstr,tempstr2);
 					#endif
 					if(CheckForKeyword(tempstr,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s Exiting\n",
-								i,tempstr,ret->NumInOffColls[ret->NumOffColls],tempOffColName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s   Last read individual = %s  ... Exiting\n",
+								i,tempstr,ret->NumInOffColls[ret->NumOffColls],tempOffColName, gCurrentIndivID);
 						exit(1);
 					}
 					if(CheckForKeyword(tempstr2,&kw_stat)) {
-						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s Exiting\n",
-								i,tempstr2,ret->NumInOffColls[ret->NumOffColls],tempOffColName);
+						fprintf(stderr,"ERROR!  Was expecting to read a value in for Locus %d and instead read the keyword %s.  At indiv %d in OFFSPRING collection=%s  Last read individual = %s  ...  Exiting\n",
+								i,tempstr2,ret->NumInOffColls[ret->NumOffColls],tempOffColName, gCurrentIndivID);
 						exit(1);
 					}
 					
@@ -780,7 +782,7 @@ int *pfr_StringToArrayOfInts(char *Str, int MaxNums, int *length)
 			*thedash = '\0';
 			lo = atoi(temp);
 			if(lo>=hi) {
-				fprintf(stderr,"Error in StringToIntArray().  Number string %s includes a range that is non-increasing\n",Str);
+				fprintf(stderr,"Error in StringToIntArray().  Number string %s includes a range that is non-increasing.  Last read individual = %s  ... \n",Str, gCurrentIndivID);
 				exit(1);
 			}
 			for(i=lo;i<=hi;i++)  {
@@ -790,7 +792,7 @@ int *pfr_StringToArrayOfInts(char *Str, int MaxNums, int *length)
 		else {	
 			now = atoi(temp);
 			if(now<=hi || now<=old) {
-				fprintf(stderr,"Error in StringToIntArray().  Number string %s includes a singleton that is non-increasing\n",Str);
+				fprintf(stderr,"Error in StringToIntArray().  Number string %s includes a singleton that is non-increasing. Last read individual = %s  ... \n",Str, gCurrentIndivID);
 				exit(1);
 			}
 			temp_ints[idx++] = now;
@@ -996,7 +998,8 @@ void HandleOffCollPossPops(pfr_geno_data *P,char *pps, int CollIdx)
 	else {
 		p = strtok(pps,",");
 		if(p==NULL) {
-			fprintf(stderr,"Error! Bad news dude.  p is null in HandleOffCollPossPops when it shouldn't be.  pps= \"%s\",  CollIdx= %d.  Exiting\n",pps,CollIdx);
+			fprintf(stderr,"Error! Bad news dude.  p is null in HandleOffCollPossPops when it shouldn't be.  pps= \"%s\",  CollIdx= %d.   Last read individual = %s  ... Exiting\n",
+           pps,CollIdx, gCurrentIndivID);
 			exit(1);
 		}
 		while(p) {
@@ -1006,8 +1009,8 @@ void HandleOffCollPossPops(pfr_geno_data *P,char *pps, int CollIdx)
 				P->OffCollPossPops[CollIdx][i]++;
 			}
 			else {
-				fprintf(stderr,"Error!  While parsing OffCollsPossPop string \"%s\", working on token \"%s\".  That token is not a recognized Population Name.  Exiting\n",
-						pps,p);
+				fprintf(stderr,"Error!  While parsing OffCollsPossPop string \"%s\", working on token \"%s\".  That token is not a recognized Population Name. Last read individual = %s  ...  Exiting\n",
+						pps,p, gCurrentIndivID);
 				exit(1);
 			}
 			p = strtok(NULL,",");
