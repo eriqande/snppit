@@ -8,6 +8,7 @@ bin=snppit-$(uname)
 echo "Compiling up executable $bin"
 
 (gcc  -O3 -o $bin \
+    -DMAX_COMM_FILE_TOKENS=50000000  \
     shared/ranlib/src/com.c  \
     shared/ecalibs/ECA_MemAlloc.c   \
     shared/ecalibs/ECA_Opt3.c  \

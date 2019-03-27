@@ -1333,7 +1333,7 @@ char **file2charstarstar(char *FileName, int *N)
 				
 				/* if n is a multiple of MAX_COMM_FILE_TOKENS then we need to realloc more memory */
 				if(n % MAX_COMM_FILE_TOKENS == 0 ) {
-					/*printf("Hey! We are about to reallocate to s in file2charstarstar. n= %d \n\n",n); */
+					printf("Hey! We are about to reallocate to s in file2charstarstar. n= %d \n\n",n);
 					
 					if ((s = (char **)realloc(s, (n + MAX_COMM_FILE_TOKENS) * sizeof(char *) )) == NULL) {
 						fprintf(stderr, "ERROR: Ah Crap!  realloc failure in file2charstarstar. n= %d  MAX_COMM_FILE_TOKENS= %d\n", n, MAX_COMM_FILE_TOKENS);

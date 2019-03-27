@@ -67,7 +67,14 @@ typedef enum {
 
 /*! @name #defined Limits and Integers */
 /*@{*/
+
+/* Here, I allow defining a larger MAX_COMM_FILE_TOKENS with -DMAX_COMM_FILE_TOKENS=XXX 
+ on the compile command line */
+ 
+#ifndef MAX_COMM_FILE_TOKENS
 #define MAX_COMM_FILE_TOKENS  5000000   /*!< Maximum number of strings that can be read out of a command file */
+#endif
+
 #define MAX_FORMATTED_ARGLIST_STR_LENGTH  10000 /*!< Maximum length of the arglist string.  This should be plenty, as most are no more than 5 to 10 characters */
 #define NUM_ARG_TOK_TYPES 8  /*!< This is the number of types of enums in the #ArgToksEnum.  */
 #define MAX_INTEGER_ARG_LENGTH 2000  /*!< The maximum length of an integer option argument that can be put on the command line. */
