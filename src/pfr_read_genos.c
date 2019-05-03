@@ -858,7 +858,7 @@ void CollectExtraColsOfOffspring(KeywordStatus K, char *S, pfr_offspring *R)
 		case(OFFSPRINGCOLUMN_SAMPLE_YEAR):
 			R->SampledYear = atoi(S);
 			#ifdef VERBOSE_FIRST_PASS_THROUGH_DATA
-				(" (%d) ",R->SampledYear);
+				printf(" (%d) ",R->SampledYear);
 			#endif
 			break;
 		case(OFFSPRINGCOLUMN_AGE_AT_SAMPLING):
