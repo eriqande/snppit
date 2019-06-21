@@ -216,7 +216,11 @@ typedef	struct {
 	int *Num_MI_Parents[3];  /* number of loci with Mendelian incompatibilities with each parent. Subscripted by sex and then the idx of the parent. */
 	
 	ParentPairMatch *ParPairs;
-	int NumParPairs;
+	int NumParPairs;  /* this will reflect the number of unexcluded parents that go forward for further evaluations.  Note that if pairs get
+                       tossed due to low LogL, this number will reflect that still. */
+  int NumParPairsMendelian;  /* this records the raw number or parent pairs with few enough Mendelian incompatibilities. */
+  int NumParPairsMend_LogL;       /* This records the number of parent pairs left after applying the MinLogL criterion to the Mendelian compatible ones */
+  int NumParPairsMend_LogL_and_Rank; /* This records the number of parent pairs left after Mendelian, LogL, and max-number parent pairs allowed. */ 
 
 	
 } indiv_matchers;

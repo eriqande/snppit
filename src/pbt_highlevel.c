@@ -34,19 +34,21 @@ pbt_user_opts *GetPBT_UserOpts(int argc, char *argv[])
 		trio_cat_prob_f=0,	
 		max_allow_par_miss_f=0,
 		dry_run_f=0,
-		psz_for_all_f=0;
+		psz_for_all_f=0,
+		min_logl_f=0,
+		max_par_pair_f=0;
 	DECLARE_ECA_OPT_VARS  
 	
 	/* This is a good place to set some default values for variables in your program */
 	
 	
 	/* some information about the program, author, etc */
-	SET_PROGRAM_NAME("pbt_C");  /* Note:  QUOTED string */
+	SET_PROGRAM_NAME("snppit");  /* Note:  QUOTED string */
 	SET_PROGRAM_SHORT_DESCRIPTION("fast and accurate parentage with SNPs"); /* QUOTED string */
-	SET_PROGRAM_LONG_DESCRIPTION(more description needed...\054 later.);  /* UN-QUOTED string! */
+	SET_PROGRAM_LONG_DESCRIPTION(Fast and accurate inference of parent pairs with SNPs);  /* UN-QUOTED string! */
 	SET_PROGRAM_AUTHOR_STRING("Eric C. Anderson"); /* QUOTED string */
-	SET_VERSION("Version XX");  /* QUOTED string */
-	SET_VERSION_HISTORY("Version XX written Nov. 8, 2007\nGrew out of simpler programs.\nblah, blah..."); /*QUOTED string */
+	SET_VERSION("Version 1.0.1");  /* QUOTED string */
+	SET_VERSION_HISTORY("Version 1.0.1 June 20, 2019 --- includes Logl and Rank filtering for non-excluded pairs\nVersion 1.0.0 written Nov. 8, 2007 --- initial release."); /*QUOTED string */
 	
 	/* setting some defaults */
 	ret = (pbt_user_opts *)malloc(sizeof(pbt_user_opts));
@@ -62,6 +64,9 @@ pbt_user_opts *GetPBT_UserOpts(int argc, char *argv[])
 	ret->DryRun = 0;
 	ret->PszForAll = -1;
 	ret->Pi = (double **)calloc(MAXPOPS,sizeof(double *));
+	ret->EnforceParPairMinLogL = 0;
+	ret->ParPairMinLogL = 0.0;
+	ret->MaxNumRetainedParPairs = -1;
 	
 	BEGIN_OPT_LOOP  
 	
@@ -225,7 +230,44 @@ pbt_user_opts *GetPBT_UserOpts(int argc, char *argv[])
 		if(ARGS_EQ(0)) {
 			ret->DryRun = 1;
 		}
-		
+	}
+	if(OPTION(
+			  Set Min LogL Threshold,
+			  min_logl_f,
+			  ,
+			  min-logl,
+			  R,
+			  Discard parent pairs with a Log Likelihood less than R. ,
+			  Sometimes there might not be a lot of power to exclude parent pairs on the basis of Mendelian incompatibility\054
+			  in which case you end up with a huge number of unexcluded parent pairs.  This can really bog down the TrioPosteriors
+			  calculation and the backward simulation step.  One way around the problem might be to enforce a minimum Log Likelihood
+			  ratio for the parent pair.  Any pair with a log likelihood ratio less than R will be discarded.  As a consequence\054
+			  the backward simulation might not be accurate\054 so you might end up with lower FDRs than you should get for some individuals.
+			  That said\054 if there are so many unexcluded parent pairs it probably will not make too much of a difference\054 because
+			  the offspring should not get assigned to any of those parents with high confidence.
+			  )) {
+		if(ARGS_EQ(1)) {
+			ret->ParPairMinLogL = GET_DUB;
+			ret->EnforceParPairMinLogL = 1;
+		}
+	}
+	if(OPTION(
+			  Set Max Number of Parent Pairs,
+			  max_par_pair_f,
+			  ,
+			  max-par-pair,
+			  J,
+			  Retain only the top J parent pairs for each individual. ,
+			  Sometimes there might not be a lot of power to exclude parent pairs on the basis of Mendelian incompatibility\054
+			  in which case you end up with a huge number of unexcluded parent pairs. This is an experimental option to only
+			  retain the top J parent pairs. This will skew
+			  the backward simulation might not be accurate\054 so you might end up with lower FDRs than you should get for some individuals.
+			  But this might be a way of dealing with a handful of individuals that have too many unexcluded parents.  Obviously you
+			  should not go too low on this!
+			  )) {
+		if(ARGS_EQ(1)) {
+			ret->MaxNumRetainedParPairs = GET_INT;
+		}
 	}
 	
 	CLOSE_SUBSET;  /* done with the greeting-related options */
@@ -502,6 +544,7 @@ void CalculateTrioPosteriorProbs(pbt_high_level_vars *HLV, int OC_idx)
 	pfr_offspring *Offs = HLV->PFR->Offs[OC_idx];
 	int NumOffs = HLV->PFR->NumInOffColls[OC_idx];
 	int the_pop;
+	int gotta_toss;
 	
 	double *FixedPri;  /* Here is what I used for a few simulations once: {1.212474e-04 ,6.272982e-05 ,4.857895e-05 ,4.293684e-03 ,4.003158e-03 ,7.843700e-05 ,9.025607e-03 ,9.207556e-03 ,9.719246e-01 ,0.000000e+00 ,0.000000e+00 ,0.000000e+00 ,0.000000e+00 ,1.538702e-06 ,1.408175e-07 ,8.823070e-04 ,3.363333e-04 ,2.608895e-06};*/
 
@@ -525,8 +568,6 @@ void CalculateTrioPosteriorProbs(pbt_high_level_vars *HLV, int OC_idx)
 				/* right here I can add a call to a function to compute the Pi priors for a given trio conditional on the 
 				   spawner year of the parents and an assumed age distribution of the offspring.  But oh my that will be a mess!  And I don't have
 				 time to worry about that at this point.  So, I am just going to use an average figure for each population. */
-				
-				
 				Offs[i].MendComps->ParPairs[j].TrioPosteriors = TrioPostProbs(Offs[i].MendComps->ParPairs[j].A_64_idx, HLV->PurePopTrioColls, 0, FixedPri,
 																			  the_pop, &(Offs[i].MendComps->ParPairs[j].LogL), NULL,
 																			  &(Offs[i].MendComps->ParPairs[j].PrPar), &(Offs[i].MendComps->ParPairs[j].PrNonPar));
@@ -549,6 +590,32 @@ void CalculateTrioPosteriorProbs(pbt_high_level_vars *HLV, int OC_idx)
 			if(Offs[i].MendComps->NumParPairs>1) {
 				qsort( (void *)(Offs[i].MendComps->ParPairs), (size_t)(Offs[i].MendComps->NumParPairs), sizeof(ParentPairMatch),cmp_parent_pair);
 			}
+			
+			/* and now we can do the thresholding of things.  We cycle these things in order until we find a LogL less than a certain amount
+			 (if we are enforcing that).
+			 */
+			Offs[i].MendComps->NumParPairsMendelian = Offs[i].MendComps->NumParPairs; 
+			if(HLV->PBUO->EnforceParPairMinLogL != 0) {
+			  gotta_toss = 0;
+			  for(j=0;j<Offs[i].MendComps->NumParPairs;j++)  {
+			    if(Offs[i].MendComps->ParPairs[j].LogL < HLV->PBUO->ParPairMinLogL) {
+			      gotta_toss = 1;
+			      break;
+			    }
+			  }
+			  if(gotta_toss) {
+			    Offs[i].MendComps->NumParPairs = j;
+			  }
+			}
+			Offs[i].MendComps->NumParPairsMend_LogL = Offs[i].MendComps->NumParPairs;
+			
+			/* and now we will enforce the Max number of parent pairs criterion, too */
+      if(HLV->PBUO->MaxNumRetainedParPairs > 0 && Offs[i].MendComps->NumParPairs > HLV->PBUO->MaxNumRetainedParPairs) {
+        Offs[i].MendComps->NumParPairs = HLV->PBUO->MaxNumRetainedParPairs;
+      }
+      Offs[i].MendComps->NumParPairsMend_LogL_and_Rank = Offs[i].MendComps->NumParPairs;
+			
+			
 			
 			/* now, let's print that stuff to file too */
 			for(j=0;j<Offs[i].MendComps->NumParPairs;j++)  {
@@ -2138,7 +2205,7 @@ void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV)
 		exit(1);
 	}
 	
-	fprintf(out,"OffspCollection\tKid\tPa\tMa\tPopName\tSpawnYear\tFDR\tPvalue\tLOD\tP.Pr.C_Se_Se\tP.Pr.Max\tMaxP.Pr.Relat\tTotPaNonExc\tTotMaNonExc\tTotUnkNonExc\tTotPairsNonExc\tKidMiss\tPaMiss\tMaMiss\tMI.Kid.Pa\tMI.Kid.Ma\tMI.Trio\tMendIncLoci\n");
+	fprintf(out,"OffspCollection\tKid\tPa\tMa\tPopName\tSpawnYear\tFDR\tPvalue\tLOD\tP.Pr.C_Se_Se\tP.Pr.Max\tMaxP.Pr.Relat\tTotPaNonExc\tTotMaNonExc\tTotUnkNonExc\tTotPairsMendCompat\tTotPairsMendAndLogL\tTotParsMendLoglAndRank\tTotPairsNonExc\tKidMiss\tPaMiss\tMaMiss\tMI.Kid.Pa\tMI.Kid.Ma\tMI.Trio\tMendIncLoci\n");
 
 	for(j=0;j<HLV->PFR->NumOffColls;j++)  {
 		Offs = HLV->PFR->Offs[j];
@@ -2147,7 +2214,7 @@ void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV)
 			if(Offs[i].MendComps->NumParPairs>0) {
 				/* get the first intersecting year (note, with iteroparous individuals we will have to modify this */
 				MateTimingWorksOut(Offs[i].MendComps->ParPairs[0].mamapapa[MALE]->ReproYears, Offs[i].MendComps->ParPairs[0].mamapapa[FEMALE]->ReproYears, &intsct);
-				fprintf(out,"%s\t%s\t%s\t%s\t%s\t%d\t%.6f\t%.6f\t%f\t%f\t%f\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
+				fprintf(out,"%s\t%s\t%s\t%s\t%s\t%d\t%.6f\t%.6f\t%f\t%f\t%f\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t",
 						HLV->PFR->OffCollNames[j],
 						Offs[i].Name,
 						Offs[i].MendComps->ParPairs[0].mamapapa[MALE]->Name,
@@ -2163,6 +2230,9 @@ void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV)
 						Offs[i].MendComps->NumParents[MALE],
 						Offs[i].MendComps->NumParents[FEMALE],
 						Offs[i].MendComps->NumParents[SEX_UNKNOWN],
+            Offs[i].MendComps->NumParPairsMendelian,
+            Offs[i].MendComps->NumParPairsMend_LogL,
+            Offs[i].MendComps->NumParPairsMend_LogL_and_Rank,
 						Offs[i].MendComps->NumParPairs,
 						Offs[i].NumMissingLoci[0],
 						Offs[i].MendComps->ParPairs[0].mamapapa[MALE]->NumMissingLoci[0],
@@ -2185,7 +2255,7 @@ void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV)
 				fprintf(out,"\n");
 			}
 			else {
-				fprintf(out,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t---\n",
+				fprintf(out,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t---\n",
 						HLV->PFR->OffCollNames[j],
 						Offs[i].Name,
 						"---",
@@ -2201,6 +2271,9 @@ void PrintFinalIndivReportWithFDRs(pbt_high_level_vars *HLV)
 						Offs[i].MendComps->NumParents[MALE],
 						Offs[i].MendComps->NumParents[FEMALE],
 						Offs[i].MendComps->NumParents[SEX_UNKNOWN],
+            Offs[i].MendComps->NumParPairsMendelian,
+            Offs[i].MendComps->NumParPairsMend_LogL,
+            Offs[i].MendComps->NumParPairsMend_LogL_and_Rank,
 						Offs[i].MendComps->NumParPairs,
 						Offs[i].NumMissingLoci[0],
 						"---",

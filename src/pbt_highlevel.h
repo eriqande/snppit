@@ -80,6 +80,13 @@ typedef struct {
 	
 	int PszForAll;  /* user may specify an average "chinook" popsize to coerce upon all the pops.  Initialize to -1 */
 
+  int EnforceParPairMinLogL;  /* by default this should be 0 */
+  double ParPairMinLogL;      /* All parent pairs that are retained will have trio logls above this value */
+
+  int MaxNumRetainedParPairs;  /* If this is less than 0 it has no effect, but if it is greater than 0, then,
+                                 after computing all the parent pair posteriors and sorting them.  This is as many 
+                                 as will be retained for the simulation, etc. */
+
 } pbt_user_opts;
 
 

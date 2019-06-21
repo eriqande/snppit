@@ -747,6 +747,9 @@ pfr_offspring *SetUpPFR_Offspring(char *Name, pfr_geno_data *P)
 		ret->MendComps->Num_MI_Parents[i]=NULL;
 		ret->MendComps->ParPairs=NULL;
 		ret->MendComps->NumParPairs = 0;
+		ret->MendComps->NumParPairsMendelian = 0;
+		ret->MendComps->NumParPairsMend_LogL = 0;
+		ret->MendComps->NumParPairsMend_LogL_and_Rank = 0;
 	}
 	ret->NumMissingLoci = (int *)calloc(MAX_REGENO_TIMES,sizeof(int));
 	

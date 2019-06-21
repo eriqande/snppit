@@ -1,0 +1,155 @@
+---
+title: "LogL and Rank Thresholds for Non-excluded Parent Pairs in SNPPIT"
+author: Eric C. Anderson
+date: 20 JUNE 2019
+output: 
+  html_notebook:
+    toc: true
+---
+
+Jon Hess and friends at CRTFC are kicking ass using SNPPIT for PBT in the
+Columbia River. They have now gone to $\approx 275$ SNPs which are doing great,
+but there are some legacy data sets that have fewer SNPs.  In these cases,
+especially with populations that don't have as much genetic variation as some of
+the others there end up being disastrously high numbers of parent pairs
+that remain unexcluded using the Mendelian incompatibility criterion. This means
+a boatload of pairs to compute posterior probabilities for, and, in some 
+data sets, it has the unfortunate consequence of causing segmentation faults
+(likely due to memory problems) when the backward simulation step starts up.
+
+I have implemented a workaround for this that involve two additional filters
+achieved with two new options.  `--min-logl` and `--max-par-pair`.
+
+Here is what happens. First all of the parent pairs with sufficiently
+few Mendelian incompatibilities to an individual are recorded, and their posterior
+probabilities and log-likelihoods are computed and put into sorted order from
+largest log-likelihood ratio (the ratio of their genotype probabilities given
+they form a parental trio divided by the genotype probabilities given that they
+are not a parental trio) to smallest. Then when `--min-logl R` is issued, all those
+parent pairs with log-likelihood ratio $> R$ are retained while the rest are
+discarded, where $R$ is some real number.  If you also choose `--max-par-pair J`,
+then if there remain more than $J$ parent pairs after the LogL filter, then
+it retains only $J$ of them.  You can also use the `--max-par-pair` filter
+without using the `--min-logl` filter, and vice-versa.
+
+When either of these options is used there is a chance that the resulting p-values and 
+FDR values for assigned parent pairs will be lower than they would be without those options,
+because there are fewer chances in the backward simulation to simulate a non-parental parent
+pair that has a log-likelihood ratio as high or higher than the observed candidate parent
+pair.
+
+I ran a few tests to see how much of an effect we see.  First, I ran snppit a few different
+times with different filter parameters on a data set that was causing problems for CRTFC
+(though I randomly discarded some offspring so it didn't take quite so long to run.)  The command
+lines used were:
+```sh
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 0.0
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 0.0 --max-par-pair 500
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 3.0
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 5.0
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 5.0 --max-par-pair 50
+snppit -f ../data/BON2018_SY11-17PBT93_SNPPIT_inputfix-Ex257assExGack3_fewer_offspring.txt  --min-logl 10.0
+```
+We can read in the output from those runs and compare the FDRs between the case with `--min-logl 0.0`, which
+is the least amount of filtering, with all the other cases to see how much of an effect there is.
+
+First, load up some packages:
+```{r}
+library(tidyverse)
+library(viridis)
+```
+
+Then read the parentage assignments into a big data frame.
+```{r, message=FALSE}
+prefixes <- c(
+  "LOGL_0",
+  "LOGL_0_TOP_500",
+  "LOGL_3",
+  "LOGL_5",
+  "LOGL_5_TOP_50",
+  "LOGL_10"
+)
+names(prefixes) <- prefixes
+
+Results <- lapply(prefixes, function(p) {
+  read_tsv(str_c("inputs/", p, "_snppit_output_ParentageAssignments.txt"), na = "---")
+}) %>%
+  bind_rows(.id = "filter_condition")
+```
+
+And then reformat that so we can compare all of these to the LOGL_0 score, but also keep all the
+other information in there in a long, tidy format.  And only keep ones that were C_Se_Se, and only those that
+had a parent found in the LOGL_0 condition.
+```{r}
+compared_0 <- Results %>%
+  filter(filter_condition == "LOGL_0") %>%
+  select(OffspCollection:PopName, MaxP.Pr.Relat, FDR, Pvalue) %>%
+  rename(LOGL0_max_relat = MaxP.Pr.Relat,
+         LOGL0_FDR = FDR,
+         LOGL0_Pvalue = Pvalue) %>%
+  filter(LOGL0_max_relat == "C_Se_Se" & !is.na(LOGL0_FDR)) %>%
+  left_join(Results)
+```
+
+And now we can make a quick plot of the Pvalues:
+```{r}
+g <- ggplot(compared_0, aes(x = LOGL0_Pvalue, y = Pvalue, colour = filter_condition)) +
+  geom_point()
+g
+```
+
+That is about what we expect to see.  If you have a super high LogL cutoff (like 10)
+then your P-values are much lower than with a low cutoff (of 0, for example). 
+
+This is because there are many more retained individuals with lower filter
+criteria.  We can color each point by the Log10 of the number of non-excluded
+parent pairs.
+
+Let's look at the portion where the FDR is less than 1
+```{r}
+g2 <- ggplot(compared_0, aes(x = LOGL0_Pvalue, y = Pvalue, colour = log10(TotPairsNonExc))) +
+  geom_point() +
+  scale_color_viridis_c()
+g2
+```
+
+This will ultimately affect the FDRs.
+
+It might also be interesting to compare the total number of parent pairs that
+are not excluded by Mendelian incompatibility, and the number that are
+non-excluded after the LogL and max-par-pair filters. We limit our focus to pairs
+that have a MaxP.Pr.Relat of C_Se_Se, and plot it on a log scale:
+```{r}
+ggplot(compared_0, aes(x = TotPairsMendCompat, y = TotPairsNonExc, colour = filter_condition)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_y_log10() + 
+  scale_x_log10()
+  
+
+```
+
+That just serves to show that even when you filter on Logl > 0, we are still, in some
+cases, discarding quite a few parent pairs that are not excluded by Mendelian incompatibility.
+
+So, what this all points out is that these two filtering options are probably best to implement
+for a first pass to catch any of the "SNPPIT killers": offspring that cause problems because they have so
+many parent pairs that are not filtered out on the basis of Mendelian incompatibility.  These individuals
+could be removed and then SNPPIT re-run with no Logl or max-par-pair filtering.
+
+## A small change to the output file
+
+I've added three columns to the `snppit_output_ParentageAssignments.txt` file:
+
+* `TotPairsMendCompat`: total number of parent pairs that were retained after the Mendelian incompatibility filtering.
+* `TotPairsMendAndLogL`: number of parent pairs remaining after the Mendelian incompatibility _and_ the `min-logl` filter.
+* `TotParsMendLoglAndRank`: number of parent pairs remaining after Mendelian incompatibility, `min-logl`, and `max-par-pair` 
+filters.  
+
+The total number of parent pairs used int the backward step is, as before, in the column `TotPairsNonExc`.
+
+Note that these extra columns still appear even if the `min-logl` and `max-par-pair` options are not used. 
+If users have scripts that pick out the values in columns of `snppit_output_ParentageAssignments.txt` by position,
+rather than column name, then those scripts will have to be updated.
+
+
