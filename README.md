@@ -16,6 +16,12 @@ directory.  However, it is probably easiest to use the
 precompiled binaries `snppit` and `snppit.exe` in this 
 repository.
 
+I just added a few new options to exclude additional parent pairs on the basis of
+the log-likelihood ratio and a limit on the number of non-excluded parent pairs.
+These are for specialized applications in situations where there are some populations
+with many unexcluded parents.  Read about it here:
+[http://eriqande.github.io/snppit/logl-and-rank-thresholding.nb.html](http://eriqande.github.io/snppit/logl-and-rank-thresholding.nb.html) . **NOTE: These changes have not been compiled up into Linux yet.  If you want them you must compile it yourself on your Linux box for now.**
+
 ## Getting this repository
 If you don't use `git` and don't want to clone this repository, you can 
 download a compressed zip of all the contents from:
