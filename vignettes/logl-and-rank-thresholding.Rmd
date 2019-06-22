@@ -7,6 +7,8 @@ output:
     toc: true
 ---
 
+# Overview of additions
+
 Jon Hess and friends at CRTFC are kicking ass using SNPPIT for PBT in the
 Columbia River. They have now gone to $\approx 275$ SNPs which are doing great,
 but there are some legacy data sets that have fewer SNPs.  In these cases,
@@ -37,6 +39,8 @@ FDR values for assigned parent pairs will be lower than they would be without th
 because there are fewer chances in the backward simulation to simulate a non-parental parent
 pair that has a log-likelihood ratio as high or higher than the observed candidate parent
 pair.
+
+# A few quick tests
 
 I ran a few tests to see how much of an effect we see.  First, I ran snppit a few different
 times with different filter parameters on a data set that was causing problems for CRTFC
@@ -137,7 +141,7 @@ for a first pass to catch any of the "SNPPIT killers": offspring that cause prob
 many parent pairs that are not filtered out on the basis of Mendelian incompatibility.  These individuals
 could be removed and then SNPPIT re-run with no Logl or max-par-pair filtering.
 
-## A small change to the output file
+# A small change to the output file
 
 I've added three columns to the `snppit_output_ParentageAssignments.txt` file:
 
