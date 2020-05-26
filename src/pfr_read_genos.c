@@ -815,6 +815,30 @@ int *pfr_StringToArrayOfInts(char *Str, int MaxNums, int *length)
 }
 
 
+/* tokenizes the spawner group string on commas to allow individuals to
+ * belong to multiple spawner groups
+ */
+void TokenizeSpawnerGroupString(char *str, int *num_toks_out, char tokens[MAX_NUM_SPAWN_GROUP_PER_INDIV][MAX_SPAWN_GROUP_NAME_LENGTH]) {
+  char *token;
+  int num_toks = 0;
+  const char s[2] = ","; /* the delimiter */
+	
+	/* get the first token */
+	token = strtok(str, s);
+	
+	/* walk through other tokens */
+	while( token != NULL ) {
+	  sprintf(tokens[num_toks], "%s", token);
+	  
+	  token = strtok(NULL, s);
+	  
+	  num_toks++;
+	}
+	
+	*num_toks_out = num_toks;
+	
+}
+
 
 
 /* 
@@ -889,6 +913,11 @@ void CollectExtraColsOfOffspring(KeywordStatus K, char *S, pfr_offspring *R)
  */
 void CollectExtraColsOfPopInds(KeywordStatus K, char *S, pfr_parent *R, pfr_geno_data *P)
 {
+  
+  int NumSG_Tokens, i;
+  char SG_Tokens[MAX_SPAWN_GROUP_NAME_LENGTH][MAX_SPAWN_GROUP_NAME_LENGTH];
+  
+  
 	switch (K) {
 		case(POPCOLUMN_SEX):
 			switch(S[0]) {
@@ -922,9 +951,18 @@ void CollectExtraColsOfPopInds(KeywordStatus K, char *S, pfr_parent *R, pfr_geno
 			#endif
 			break;
 		case(POPCOLUMN_SPAWN_GROUP):
-			/* IN THE FUTURE I CAN PUT THE FOLLOWING FUNCTION INSIDE ANOTHER FUNCTION THAT TOKENIZES THE SPAWN GROUP STRING INTO ITS HIERARCHICAL PARTS.  THEN INSEAD OF
-			 JUST HAVE A 0 IN THERE I WOULD BY CYCLING OVER THE DIFFERENT LEVELS OF HIERARCHY IMPLIED BY THE TOKENIZATION. */
-			R->SpawnGroup[0] = HandleSpawnGroupString(S, 0, P);
+			/* Tokenize the spawner group string on commas and store that in our temp character array.
+			 * Then allocate memory for the integer equivalents of those spawner groups and assign them.
+			 */ 
+			TokenizeSpawnerGroupString(S, &NumSG_Tokens, SG_Tokens);
+		  
+			R->SpawnGroup = (int *)calloc(NumSG_Tokens,sizeof(int));
+			for(i=0;i<NumSG_Tokens;i++) {
+			  R->SpawnGroup[i] = HandleSpawnGroupString(SG_Tokens[i], 0, P);
+			  printf("SpawnerGroup Assignment %d for indiv %s is %d from token %s\n", i, R->Name, R->SpawnGroup[i], SG_Tokens[i]);
+			}
+			R->NumSpawnGroups = NumSG_Tokens;
+			
 			#ifdef VERBOSE_SECOND_PASS_THROUGH_DATA 
 				printf(" (%d<-->%s) ",R->SpawnGroup[0],P->SpawnGroupNames[0][R->SpawnGroup[0]]);
 			#endif
@@ -1067,8 +1105,17 @@ void CollectDataOnSecondPass(pfr_geno_data *ret, const char *FileName)
 				
 				for(k=0;k<ret->NumInPops[i][j];k++)  {
 					ret->Pops[i][j][k].NumGenos = 0;
-						   ret->Pops[i][j][k].SpawnGroup = (int *)calloc(MAX_SPAWN_GROUP_LEVELS,sizeof(int));
+				  
+				  /* We allocate to variable number of spawner groups while reading, now, but leave this
+				   * here to ensure that something is allocated to it whether or not the spawner
+				   * groups are being used.
+				   */
+					ret->Pops[i][j][k].SpawnGroup = (int *)calloc(MAX_SPAWN_GROUP_LEVELS,sizeof(int));
 					
+					/* we also set the number of spawn groups to one by default so that our
+					 * code will evaluate pairs even if no spawner groups info is given.
+					 */
+					ret->Pops[i][j][k].NumSpawnGroups = 1;
 				}
 				
 			}

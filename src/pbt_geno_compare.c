@@ -312,13 +312,34 @@ Return a 1 if the two individuals could belong to the same spawning group and a
 int SpawnGroupMatches( pfr_parent *Ma, pfr_parent *Pa)
 {
 	
-	/* note that a spawning group of 0 means missing data, so the fish matches any spawn group.  Hence... */
-	if(Ma->SpawnGroup[0]==0 || Pa->SpawnGroup[0]==0)  {
-		return(1);
-	}
-	if( Ma->SpawnGroup[0] == Pa->SpawnGroup[0] ) {
-		return(1);
-	}
+	int i,j;
+  int nsgMa,nsgPa;
+  
+  nsgMa = Ma->NumSpawnGroups;
+  nsgPa = Pa->NumSpawnGroups;
+  
+  /* note that we should only ever have 0's for the SpawnGroup in the first position
+   * of the SpawnGroup array.  So test for it here, and throw an error if we see it later.
+   * A spawning group of 0 means missing data, so the fish matches any spawn group.
+   */
+  if(Ma->SpawnGroup[0]==0 || Pa->SpawnGroup[0]==0)  {
+    return(1);
+  }
+  
+  for(i=0;i<nsgMa;i++) {
+    for(j=0;j<nsgPa;j++) {
+      
+      /* Throw an error if we see other zeroes in there. */
+      if(Ma->SpawnGroup[i]==0 || Pa->SpawnGroup[j]==0)  {
+        fprintf(stderr, "Error! Missing Spawn Group in token > 0 for fish %s or %s\n", Ma->Name, Pa->Name);
+        exit(1);
+      }
+      if( Ma->SpawnGroup[i] == Pa->SpawnGroup[j] ) {
+        return(1);
+      }
+    }
+  }
+  
 	return(0);
 }
 

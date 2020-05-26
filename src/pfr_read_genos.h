@@ -129,7 +129,11 @@ struct spawn_group_name_hash {
 };
 
 
-
+/* Here I define a few things for handling individuals that can be in multiple spawner groups.
+ * I am going to give up on the whole hierarchical levels of spawning groups, as that ends up not
+ * being as useful as having individuals capable of being in multiple spawner groups.
+ */
+#define MAX_NUM_SPAWN_GROUP_PER_INDIV 50
 
 
 
@@ -155,9 +159,9 @@ typedef struct {
 	
 	SexEnum Sex; 
 	pfr_year_range *ReproYears;
-	int* SpawnGroup;  /* denotes the spawning group (at different hierarchical levels) of the
-	                     individual.  0 denotes unknown, and any positive integer denotes a known
-					     spawn group at that level */
+	int NumSpawnGroups;  /* the number of different spawning groups an individual belongs to */
+	int* SpawnGroup;  /* denotes the different spawning groups (recorded as integers) that an individual can belong
+	                     to*/
 	
 	int NumGenos;  /* the total number of genotyped samples of this individual in this context.  */
 	char **geno;  /* indexed by i,l where i is the regenotyping number of l is the locus. Possible values are 
@@ -347,3 +351,4 @@ void ComputeAlleleFreqsFromCounts(FILE *s, pfr_geno_data *P);
 void SummarizeLocusNameAndGtypRates(FILE *s, pfr_geno_data *P);
 int ReadAndCheckPopSize(FILE *in, char *S);
 void CollectDataOnSecondPass(pfr_geno_data *ret, const char *FileName);
+void TokenizeSpawnerGroupString(char *str, int *num_toks_out, char tokens[MAX_NUM_SPAWN_GROUP_PER_INDIV][MAX_SPAWN_GROUP_NAME_LENGTH]);
