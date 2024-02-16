@@ -53,9 +53,9 @@ FB_Vars *CreateCompleteFB_Vars(
 	
 	/* this is what we used to initialize SNPSUMPED to: "/Users/eriq/Documents/xp_dev_svn_checkouts/snpSumPed/OSX/bin/Release/snpSumPed" */
 	
-	if(gHasSnpSumPedPath) {
+	/*if(gHasSnpSumPedPath) {
 		SNPSUMPED = gSnpSumPedPath;
-	}
+	}*/
 	
 	/* figure out the limits for the for loops */
 	if(ParentPopIdx>=0) {

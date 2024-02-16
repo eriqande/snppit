@@ -60,7 +60,7 @@ pbt_user_opts *GetPBT_UserOpts(int argc, char *argv[])
 	ret->MI_fnr_target = .005;
 	ret->MaxAllowMissingLociInParents = 10;
 	ret->Pi =  NULL;
-	gHasSnpSumPedPath = 0;
+/*	gHasSnpSumPedPath = 0; */
 	ret->DryRun = 0;
 	ret->PszForAll = -1;
 	ret->Pi = (double **)calloc(MAXPOPS,sizeof(double *));

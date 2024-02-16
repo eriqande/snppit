@@ -1,5 +1,10 @@
 #define NUM_SPEC_PEDS 18
 
+#ifdef UN_EXTERN
+#define GLOB
+#else 
+#define GLOB extern
+#endif
 
 
 FB_Vars *CreateCompleteFB_Vars(
@@ -37,8 +42,8 @@ const char *SpecPedIdx2Str(int P);
 
 
 /* a global variable to use as the path to snpSumPed */
-char gSnpSumPedPath[5000];
-int gHasSnpSumPedPath;
+/* char gSnpSumPedPath[5000]; */
+/* int gHasSnpSumPedPath; */
 
 
 
