@@ -959,7 +959,7 @@ void CollectExtraColsOfPopInds(KeywordStatus K, char *S, pfr_parent *R, pfr_geno
 			R->SpawnGroup = (int *)calloc(NumSG_Tokens,sizeof(int));
 			for(i=0;i<NumSG_Tokens;i++) {
 			  R->SpawnGroup[i] = HandleSpawnGroupString(SG_Tokens[i], 0, P);
-			  printf("SpawnerGroup Assignment %d for indiv %s is %d from token %s\n", i, R->Name, R->SpawnGroup[i], SG_Tokens[i]);
+			  /*printf("SpawnerGroup Assignment %d for indiv %s is %d from token %s\n", i, R->Name, R->SpawnGroup[i], SG_Tokens[i]); */
 			}
 			R->NumSpawnGroups = NumSG_Tokens;
 			
