@@ -30,7 +30,7 @@ https://github.com/eriqande/snppit/archive/master.zip
 
 ## Quick start for non-computer programmer types
 
-**Warning!** the executable files `snppit.exe`, `snppit-Darwin`, and `snppit-Linux` are provided
+**Warning!** the executable files `snppit-windows.exe`, `snppit.exe`, `snppit-Darwin`, and `snppit-Linux` are provided
 as a courtesy, but are not guaranteed to have been compiled up from the latest commit.  For that
 you should compile it up yourself (or see when it was last committed).
 
@@ -38,7 +38,10 @@ To get the program running quickly, do the following:
 
 ### ON WINDOWS:
 
-1. Copy the executable "snppit.exe" to your Desktop.  
+**Note: Jon Hess at CRITFC compiled `snppit-windows.exe` on his own Windows box.  It works a whole lot
+better than `windows.exe` which was cross-compiled on a Mac. So Windows users should use `snppit-windows.exe`**
+
+1. Copy the executable "snppit-windows.exe" to your Desktop.  
 2. Copy the data file ExampleDataFile1.txt in the ExampleData
    directory to your Desktop.
 3. Open the Command Prompt application (under Start->All Programs->Accessories)
@@ -50,7 +53,7 @@ To get the program running quickly, do the following:
     be in the Desktop directory.
 5. Type:
     ```
-    snppit.exe -f ExampleDataFile1.txt 
+    snppit-windows.exe -f ExampleDataFile1.txt 
     ```
     into the command prompt.
 
